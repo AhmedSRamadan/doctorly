@@ -1,0 +1,43 @@
+version: '3'
+services:
+
+  nginx:
+    restart: always
+    image: nginx-custom
+    build:  
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - '8000:80'
+  country:
+    image: country
+    build:      
+      dockerfile: Dockerfile
+      context: ./countries
+      depends_on: haproxy
+
+  airport:
+    image: airport
+    build:
+      dockerfile: Dockerfile
+      context: ./airports
+      depends_on: haproxy
+
+  mongo1:
+    image: mongo
+    volumes:
+      - /var/mongo/data:/data/db
+
+  mongo2:
+    image: mongo
+    volumes:
+      - /var/mongo/data:/data/db
+
+  haproxy:
+    image: haproxy
+    volumes:
+      - ./haproxy/conf:/usr/local/etc/haproxy
+    depends_on:
+      - mongo1
+      - mongo2
+
